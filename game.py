@@ -1,14 +1,23 @@
 """
->2 players
-simulation repeat?
-menus
-save results and stats
-AI players
+# >2 players
+# simulation repeat?
+# set board size menu
+# menus
+# save results and stats
+time moves
+exit game
+bigger board size..
+depth
+plies
 """
 
 import time
-import random_player
-import ai_player
+from ai_player import AIPlayer
+from random_player import RandomPlayer
+
+
+
+
 
 
 
@@ -21,8 +30,35 @@ class TicTacToe:
         self.current_player = 1
         self.available_moves = [i for i in range(1, (board_size ** 2) + 1)]
 
-        self.random_player_1 = random_player.RandomPlayer(self.available_moves)
-        self.random_player_2 = random_player.RandomPlayer(self.available_moves)
+        self.random_player_1 = RandomPlayer()
+        self.random_player_2 = RandomPlayer()
+
+
+        self.ai_player_1 = None
+        self.ai_player_2 = None
+
+
+  
+
+
+
+ 
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def start(self):
         self.display_start()
@@ -41,12 +77,13 @@ class TicTacToe:
 
     def handle_start_choice(self, choice):            
         if choice == 1:
-            self.play("2 player")
+            self.play(mode="2 player")
         elif choice == 2:
-            choice = self.get_random_choice()
-            self.handle_random_choice(choice)
+            random_choice = self.get_random_choice()
+            self.handle_random_choice(random_choice)
         elif choice == 3:
-            self.ai_menu()
+            ai_choice = self.get_ai_choice()
+            self.handle_ai_choice(ai_choice)
         elif choice == 4:
             self.set_icons()
             self.display_start()            
@@ -94,13 +131,13 @@ class TicTacToe:
             print("\n\nCalculating stats...")
             time.sleep(1)
             print(f"\n{num_games} game{'s' if num_games > 1 else ''} played\n")
-            print(f"{p1_icon} wins: {p1_wins} ({round(p1_wins / num_games, 3)}%)")
-            print(f"{p2_icon} wins: {p2_wins} ({round(p2_wins / num_games, 3)}%)")
-            print(f"   ties: {ties} ({round(ties / num_games, 1)}%)\n")
+            print(f"{p1_icon} wins: {p1_wins} ({round(p1_wins / num_games * 100, 5)}%)")
+            print(f"{p2_icon} wins: {p2_wins} ({round(p2_wins / num_games * 100, 5)}%)")
+            print(f"   ties: {ties} ({round(ties / num_games * 100, 5)}%)\n")
 
-            print(f"{p1_icon} average total moves to win: {0 if p1_wins == 0 else round(sum_moves_p1_win / p1_wins, 3)}")
-            print(f"{p2_icon} average total moves to win: {0 if p2_wins == 0 else round(sum_moves_p2_win/ p2_wins, 3)}")
-            print(f"   average moves to reach end game: {round(moves / num_games, 3)}\n")
+            print(f"{p1_icon} average total moves to win: {0 if p1_wins == 0 else round(sum_moves_p1_win / p1_wins, 5)}")
+            print(f"{p2_icon} average total moves to win: {0 if p2_wins == 0 else round(sum_moves_p2_win/ p2_wins, 5)}")
+            print(f"   average moves to reach end game: {round(moves / num_games, 5)}\n")
             
             exit()
         else:
@@ -120,8 +157,8 @@ class TicTacToe:
         self.current_player = 1
         self.available_moves = [i for i in range(1, (len(self.board) ** 2) + 1)]
 
-        self.random_player_1 = random_player.RandomPlayer(self.available_moves)
-        self.random_player_2 = random_player.RandomPlayer(self.available_moves)
+        self.random_player_1 = RandomPlayer()
+        self.random_player_2 = RandomPlayer()
 
     def check_play_again(self):
         while True:
@@ -138,13 +175,42 @@ class TicTacToe:
 
     def handle_random_choice(self, choice):
         if choice == 1:
-            self.play("random vs human")
+            self.set_p1("Random vs You")
+            self.play(mode="Random vs You")
         elif choice == 2:
-            self.play("random vs random", self.get_game_settings())
+            self.play(mode="Random vs Random", settings=self.get_game_settings())
+
+
+    def handle_ai_choice(self, choice):
+        if choice in [1, 2, 3]:
+            self.ai_player_1 = AIPlayer(self.player_icons[0], self.player_icons[1], "minimax")
+            self.ai_player_2 = AIPlayer(self.player_icons[1], self.player_icons[0], "minimax")
+
+        elif choice in [4, 5, 6]:
+            self.ai_player_1 = AIPlayer(self.player_icons[0], self.player_icons[1], "alphabeta")
+            self.ai_player_2 = AIPlayer(self.player_icons[1], self.player_icons[0], "alphabeta")
+
+        if choice == 1:
+            self.set_p1("AI (Minimax) vs You")
+            self.play(mode="AI (Minimax) vs You")
+        elif choice == 2:
+            self.play(mode="AI (Minimax) vs AI (Minimax)", settings=self.get_game_settings())
         elif choice == 3:
-            pass
+            self.set_p1("AI (Minimax) vs Random")
+            self.play(mode="AI (Minimax) vs Random", settings=self.get_game_settings())
+
         elif choice == 4:
-            pass        
+            self.set_p1("AI (Alpha-beta) vs You")
+            self.play(mode="AI (Alpha-beta) vs You")
+        elif choice == 5:
+            self.play(mode="AI (Alpha-beta) vs AI (Alpha-beta)", settings=self.get_game_settings())
+        elif choice == 6:
+            self.set_p1("AI (Alpha-beta) vs Random")
+            self.play(mode="AI (Alpha-beta) vs Random", settings=self.get_game_settings())
+        elif choice == 7:
+            self.set_p1("AI (Minimax) vs AI (Alpha-beta)")
+            self.play(mode="AI (Minimax) vs AI (Alpha-beta)", settings=self.get_game_settings())
+        
 
     def get_game_settings(self):
         num_games = 1
@@ -199,14 +265,12 @@ class TicTacToe:
 
     def get_random_choice(self):
         print("\n   Random game modes:\n")
-        print("   1. Random vs human")
-        print("   2. Random vs random")
-        print("   3. Random vs AI (Minimax)")
-        print("   4. Random vs AI (Alpha-beta)\n")
+        print("   1. Random vs You") 
+        print("   2. Random vs Random\n")
         while True:
             try:
                 choice = int(input("   Select an option: "))
-                if 1 <= choice <= 4:
+                if 1 <= choice <= 2:
                     return choice
                 
             except ValueError:
@@ -216,11 +280,76 @@ class TicTacToe:
                 print("\n\nGame exited.")
                 exit()
 
-    def ai_menu(self):
-        pass
+    def get_ai_choice(self):
+        print("\n   AI game modes:\n")
+        print("   1. AI (Minimax) vs You\n") 
+        print("   2. AI (Minimax) vs AI (Minimax)") 
+        print("   3. AI (Minimax) vs Random\n") 
 
+        print("   4. AI (Alpha-beta) vs You") 
+        print("   5. AI (Alpha-beta) vs AI (Alpha-beta)") 
+        print("   6. AI (Alpha-beta) vs Random\n") 
+
+        print("   7. AI (Minimax) vs AI (Alpha-beta)\n") 
+        while True:
+            try:
+                choice = int(input("   Select an option: "))
+                if 1 <= choice <= 7:
+                    return choice
+                
+            except ValueError:
+                pass
+
+            except KeyboardInterrupt:
+                print("\n\nGame exited.")
+                exit()
+
+    def set_p1(self, mode):
+        if mode == "Random vs You":
+            p1 = "You"
+            p2 = "Random"
+        elif mode == "AI (Minimax) vs You":
+            p1 = "You"
+            p2 = "AI (Minimax)"
+        elif mode == "AI (Minimax) vs Random":
+            p1 = "AI (Minimax)"
+            p2 = "Random"
+
+        elif mode == "AI (Alpha-beta) vs You":
+            p1 = "AI (Alpha-beta)"
+            p2 = "You"
+        
+        elif mode == "AI (Alpha-beta) vs Random":
+            p1 = "AI (Alpha-beta)"
+            p2 = "Random"
+        
+
+        while True:
+            try:
+                choice = int(input(f"\n      Set P1 (1 for {p1}, 2 for {p2}): "))
+                if choice == 1:
+                    print(f"      P1 set to {p1}, P2 set to {p2}\n")
+                    time.sleep(1)
+                    return
+                elif choice == 2:
+                    print(f"      P1 set to {p2}, P2 set to {p1}\n")
+                    time.sleep(1)
+                    self.player_icons[0], self.player_icons[1] = self.player_icons[1], self.player_icons[0]
+
+                    self.current_player = 2
+
+                    self.ai_player_1.update_icons(self.player_icons[0], self.player_icons[1])
+                    self.ai_player_2.update_icons(self.player_icons[1], self.player_icons[0])
+
+                    return
+                
+            except ValueError:
+                pass
+
+            except KeyboardInterrupt:
+                print("\n\nGame exited.")
+                exit()
     
-
     def check_game_over(self, abbreviated_output=False):
         def check_winner(char):
             n = len(self.board)
@@ -299,24 +428,24 @@ class TicTacToe:
             try:
                 if mode == "2 player":
                     move = int(input("Enter your move: "))
-                elif mode == "random vs human":
+                elif mode == "Random vs You":
                     if self.current_player == 1:
                         move = int(input("Enter your move: "))
                     else:
                         if not abbreviated_output:
                             print("Random player is moving...")
                             time.sleep(1)
-                        move = self.random_player_1.get_move()
+                        move = self.random_player_1.get_move(self.available_moves)
                         if not abbreviated_output:
                             print(f"Random player's move: {move}")
                             time.sleep(1)
 
-                elif mode == "random vs random":
+                elif mode == "Random vs Random":
                     if self.current_player == 1:
                         if not abbreviated_output:
                             print("Random player 1 is moving...")
                             time.sleep(1)
-                        move = self.random_player_1.get_move()
+                        move = self.random_player_1.get_move(self.available_moves)
                         if not abbreviated_output:
                             print(f"Random player 1's move: {move}")
                             time.sleep(1)
@@ -324,18 +453,116 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("Random player 2 is moving...")
                             time.sleep(1)
-                        move = self.random_player_2.get_move()
+                        move = self.random_player_2.get_move(self.available_moves)
                         if not abbreviated_output:
                             print(f"Random player 2's move: {move}")
                             time.sleep(1)
 
+                elif mode == "AI (Minimax) vs You":
+                    if self.current_player == 1:
+                        move = int(input("Enter your move: "))
+                    else:
+                        if not abbreviated_output:
+                            print("AI (Minimax) player is moving...")
+                            time.sleep(1)
+                        move = self.ai_player_2.get_move(self.board, abbreviated_output)
+                        if not abbreviated_output:
+                            print(f"AI (Minimax) player's move: {move}")
+                            time.sleep(1)
+                
+                elif mode == "AI (Minimax) vs AI (Minimax)":
+                    if self.current_player == 1:
+                        if not abbreviated_output:
+                            print("AI (Minimax) player 1 is moving...")
+                            time.sleep(1)
+                        move = self.ai_player_1.get_move(self.board, abbreviated_output)
+                        if not abbreviated_output:
+                            print(f"AI (Minimax) player 1's move: {move}")
+                            time.sleep(1)
+                    else:
+                        if not abbreviated_output:
+                            print("AI (Minimax) player 2 is moving...")
+                            time.sleep(1)
+                        move = self.ai_player_2.get_move(self.board, abbreviated_output)
+                        if not abbreviated_output:
+                            print(f"AI (Minimax) player 2's move: {move}")
+                            time.sleep(1)
+
+                elif mode == "AI (Minimax) vs Random":
+                    if self.current_player == 1:
+                        if not abbreviated_output:
+                            print("AI (Minimax) player is moving...")
+                            time.sleep(1)
+                        move = self.ai_player_1.get_move(self.board, abbreviated_output)
+                        if not abbreviated_output:
+                            print(f"AI (Minimax) player's move: {move}")
+                            time.sleep(1)
+                    else:
+                        if not abbreviated_output:
+                            print("Random player is moving...")
+                            time.sleep(1)
+                        move = self.random_player_2.get_move(self.available_moves)
+                        if not abbreviated_output:
+                            print(f"Random player's move: {move}")
+                            time.sleep(1)
+
+                elif mode == "AI (Alpha-beta) vs You":
+                    if self.current_player == 1:
+                        move = int(input("Enter your move: "))
+                    else:
+                        if not abbreviated_output:
+                            print("AI (Alpha-beta) player is moving...")
+                            time.sleep(1)
+                        move = self.ai_player_2.get_move(self.board, abbreviated_output)
+                        if not abbreviated_output:
+                            print(f"AI (Alpha-beta) player's move: {move}")
+                            time.sleep(1)
+
+                elif mode == "AI (Alpha-beta) vs AI (Alpha-beta)":
+                    if self.current_player == 1:
+                        if not abbreviated_output:
+                            print("AI (Alpha-beta) player 1 is moving...")
+                            time.sleep(1)
+                        move = self.ai_player_1.get_move(self.board, abbreviated_output)
+                        if not abbreviated_output:
+                            print(f"AI (Alpha-beta) player 1's move: {move}")
+                            time.sleep(1)
+                    else:
+                        if not abbreviated_output:
+                            print("AI (Alpha-beta) player 2 is moving...")
+                            time.sleep(1)
+                        move = self.ai_player_2.get_move(self.board, abbreviated_output)
+                        if not abbreviated_output:
+                            print(f"AI (Alpha-beta) player 2's move: {move}")
+                            time.sleep(1)
+                
+                elif mode == "AI (Alpha-beta) vs Random":
+                    if self.current_player == 1:
+                        if not abbreviated_output:
+                            print("AI (Alpha-beta) player is moving...")
+                            time.sleep(1)
+                        move = self.ai_player_1.get_move(self.board, abbreviated_output)
+                        if not abbreviated_output:
+                            print(f"AI (Alpha-beta) player's move: {move}")
+                            time.sleep(1)
+                    else:
+                        if not abbreviated_output:
+                            print("Random player is moving...")
+                            time.sleep(1)
+                        move = self.random_player_2.get_move(self.available_moves)
+                        if not abbreviated_output:
+                            print(f"Random player's move: {move}")
+                            time.sleep(1)
+
+
                 if move in self.available_moves:
                     self.available_moves.remove(move)
-                    for player in [self.random_player_1, self.random_player_2]:
-                        if player:
-                            player.update_available_moves(self.available_moves)
+                    
+                    
+
 
                     self.update_board(move)
+
                     self.current_player = 2 if self.current_player == 1 else 1
                     return
                 
@@ -433,5 +660,11 @@ class TicTacToe:
 
 
 
-game = TicTacToe(10)
+    
+
+     
+
+
+
+game = TicTacToe(3)
 game.start()
