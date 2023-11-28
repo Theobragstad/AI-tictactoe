@@ -1,24 +1,19 @@
 """
 # >2 players
 # simulation repeat?
-# set board size menu
-# menus
-# save results and stats
-time moves
+exceptions
 exit game
 bigger board size..
 depth
 plies
+saved - align outputs if bigger, show mode played
 """
 
 import time
+from datetime import datetime
+
 from ai_player import AIPlayer
 from random_player import RandomPlayer
-
-
-
-
-
 
 
 class TicTacToe:
@@ -26,16 +21,19 @@ class TicTacToe:
         self.player_icons = ['❌', '⭕']
         self.all_icons = ['❌', '⭕','😊','😂','😍','😛','🤓','😎','😟','😤','😳','🥶','😴','😈']
         self.available_icons = [icon for icon in self.all_icons if icon not in self.player_icons]
+
         self.board = [['⬜️' for _ in range(board_size)] for _ in range(board_size)]
-        self.current_player = 1
         self.available_moves = [i for i in range(1, (board_size ** 2) + 1)]
+
+        self.current_player = 1
 
         self.random_player_1 = RandomPlayer()
         self.random_player_2 = RandomPlayer()
 
-
         self.ai_player_1 = None
         self.ai_player_2 = None
+
+
 
 
   
@@ -65,12 +63,13 @@ class TicTacToe:
 
     def display_start(self):
         print("\n\n❌⭕ tic tac toe\n")
-        print("1. 2 player")
+        print("1. 2 player (normal)")
         print("2. Random")
         print("3. AI")
 
         print("\n4. Set icons")
-        print("5. Exit\n")
+        print("5. Set board size")
+        print("6. Exit\n")
         choice = self.get_start_choice()
         self.handle_start_choice(choice)
 
@@ -86,15 +85,37 @@ class TicTacToe:
             self.handle_ai_choice(ai_choice)
         elif choice == 4:
             self.set_icons()
-            self.display_start()            
+            self.display_start() 
         elif choice == 5:
+            self.set_board_size()
+            self.display_start()            
+        elif choice == 6:
             return
+
+    def set_board_size(self):
+        print()
+        while True:
+            try:
+                board_size = int(input("      Enter a board size: "))
+                if 0 < board_size <= 100:
+                    self.board = [['⬜️' for _ in range(board_size)] for _ in range(board_size)]
+                    self.available_moves = [i for i in range(1, (board_size ** 2) + 1)]
+                    print(f"      Board size set to {board_size}. Returning to start menu...")
+                    time.sleep(1)
+                    break
+            except ValueError:
+                pass
+            except KeyboardInterrupt:
+                print("\n\nGame exited.")
+                exit()
+            
 
 
     def play(self, mode, settings=None):
         if settings:
             num_games = p1_wins = p2_wins = ties = moves = sum_moves_p1_win = sum_moves_p2_win= 0
 
+            result_boards = []
             while num_games < settings["num_games"]:
                 p1_move_count = p2_move_count = 0 
                 while True:
@@ -113,6 +134,9 @@ class TicTacToe:
                     
                     checks = self.check_game_over(settings["abbreviated_output"])
                     if True in checks:
+                        result_boards.append(self.board)
+
+
                         if checks[0]:
                             sum_moves_p1_win += p1_move_count
                             p1_wins += 1
@@ -128,6 +152,7 @@ class TicTacToe:
             
             p1_icon, p2_icon = self.player_icons
 
+
             print("\n\nCalculating stats...")
             time.sleep(1)
             print(f"\n{num_games} game{'s' if num_games > 1 else ''} played\n")
@@ -138,6 +163,24 @@ class TicTacToe:
             print(f"{p1_icon} average total moves to win: {0 if p1_wins == 0 else round(sum_moves_p1_win / p1_wins, 5)}")
             print(f"{p2_icon} average total moves to win: {0 if p2_wins == 0 else round(sum_moves_p2_win/ p2_wins, 5)}")
             print(f"   average moves to reach end game: {round(moves / num_games, 5)}\n")
+
+
+            if settings["save_results"]:
+                with open(f'results/tic tac toe {datetime.now().strftime("%a %b %d %Y %I:%M:%S %p")}.txt', 'a') as file:
+                    file.write(f"{num_games} game{'s' if num_games > 1 else ''} played\n")
+                    file.write(f"{p1_icon} wins: {p1_wins} ({round(p1_wins / num_games * 100, 5)}%)\n")
+                    file.write(f"{p2_icon} wins: {p2_wins} ({round(p2_wins / num_games * 100, 5)}%)\n")
+                    file.write(f"   ties: {ties} ({round(ties / num_games * 100, 5)}%)\n")
+                    file.write(f"{p1_icon} average total moves to win: {0 if p1_wins == 0 else round(sum_moves_p1_win / p1_wins, 5)}\n")
+                    file.write(f"{p2_icon} average total moves to win: {0 if p2_wins == 0 else round(sum_moves_p2_win/ p2_wins, 5)}\n")
+                    file.write(f"   average moves to reach end game: {round(moves / num_games, 5)}\n")
+
+                    file.write("\n\n")
+                    for board in result_boards:
+                        for row in board:
+                            file.write(" ".join(map(str, row)) + "\n")
+                        file.write("\n")
+                    
             
             exit()
         else:
@@ -159,6 +202,7 @@ class TicTacToe:
 
         self.random_player_1 = RandomPlayer()
         self.random_player_2 = RandomPlayer()
+
 
     def check_play_again(self):
         while True:
@@ -190,6 +234,10 @@ class TicTacToe:
             self.ai_player_1 = AIPlayer(self.player_icons[0], self.player_icons[1], "alphabeta")
             self.ai_player_2 = AIPlayer(self.player_icons[1], self.player_icons[0], "alphabeta")
 
+        elif choice == 7:
+            self.ai_player_1 = AIPlayer(self.player_icons[0], self.player_icons[1], "minimax")
+            self.ai_player_2 = AIPlayer(self.player_icons[1], self.player_icons[0], "alphabeta")
+
         if choice == 1:
             self.set_p1("AI (Minimax) vs You")
             self.play(mode="AI (Minimax) vs You")
@@ -207,6 +255,7 @@ class TicTacToe:
         elif choice == 6:
             self.set_p1("AI (Alpha-beta) vs Random")
             self.play(mode="AI (Alpha-beta) vs Random", settings=self.get_game_settings())
+
         elif choice == 7:
             self.set_p1("AI (Minimax) vs AI (Alpha-beta)")
             self.play(mode="AI (Minimax) vs AI (Alpha-beta)", settings=self.get_game_settings())
@@ -216,17 +265,18 @@ class TicTacToe:
         num_games = 1
         abbreviated_output = True
         save_results = False
-
-        try:
-            while True:
-                num_games = int(input("\n      Number of games: "))
+        
+        print()
+        while True:
+            try:
+                num_games = int(input("      Number of games: "))
                 if 0 < num_games <= 10000:
                     break
-        except ValueError:
-            pass
-        except KeyboardInterrupt:
-            print("\n\nGame exited.")
-            exit()
+            except ValueError:
+                pass
+            except KeyboardInterrupt:
+                print("\n\nGame exited.")
+                exit()
         
 
         while True:
@@ -269,7 +319,7 @@ class TicTacToe:
         print("   2. Random vs Random\n")
         while True:
             try:
-                choice = int(input("   Select an option: "))
+                choice = int(input("   Choose an option: "))
                 if 1 <= choice <= 2:
                     return choice
                 
@@ -282,7 +332,7 @@ class TicTacToe:
 
     def get_ai_choice(self):
         print("\n   AI game modes:\n")
-        print("   1. AI (Minimax) vs You\n") 
+        print("   1. AI (Minimax) vs You") 
         print("   2. AI (Minimax) vs AI (Minimax)") 
         print("   3. AI (Minimax) vs Random\n") 
 
@@ -293,7 +343,7 @@ class TicTacToe:
         print("   7. AI (Minimax) vs AI (Alpha-beta)\n") 
         while True:
             try:
-                choice = int(input("   Select an option: "))
+                choice = int(input("   Choose an option: "))
                 if 1 <= choice <= 7:
                     return choice
                 
@@ -322,6 +372,9 @@ class TicTacToe:
         elif mode == "AI (Alpha-beta) vs Random":
             p1 = "AI (Alpha-beta)"
             p2 = "Random"
+        elif mode == "AI (Minimax) vs AI (Alpha-beta)":
+            p1 = "AI (Minimax)"
+            p2 = "AI (Alpha-beta)"
         
 
         while True:
@@ -401,6 +454,8 @@ class TicTacToe:
             print("".join(map(str, row)))
         if not abbreviated_output:
             print()
+        
+        
     
     def display_available_moves(self):
         n = len(self.board)
@@ -553,6 +608,24 @@ class TicTacToe:
                         if not abbreviated_output:
                             print(f"Random player's move: {move}")
                             time.sleep(1)
+                
+                elif mode == "AI (Minimax) vs AI (Alpha-beta)":
+                    if self.current_player == 1:
+                        if not abbreviated_output:
+                            print("AI (Minimax) player is moving...")
+                            time.sleep(1)
+                        move = self.ai_player_1.get_move(self.board, abbreviated_output)
+                        if not abbreviated_output:
+                            print(f"AI (Minimax) player's move: {move}")
+                            time.sleep(1)
+                    else:
+                        if not abbreviated_output:
+                            print("AI (Alpha-beta) player is moving...")
+                            time.sleep(1)
+                        move = self.ai_player_2.get_move(self.board, abbreviated_output)
+                        if not abbreviated_output:
+                            print(f"AI (Alpha-beta) player's move: {move}")
+                            time.sleep(1)
 
 
                 if move in self.available_moves:
@@ -588,7 +661,7 @@ class TicTacToe:
     def get_start_choice(self):
         while True:
             try:
-                choice = int(input("Select an option: "))
+                choice = int(input("Choose an option: "))
                 if 0 <= choice <= 5:
                     return choice
                 
@@ -666,5 +739,5 @@ class TicTacToe:
 
 
 
-game = TicTacToe(3)
+game = TicTacToe()
 game.start()
