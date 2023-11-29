@@ -1,12 +1,17 @@
 """
-# >2 players
-# simulation repeat?
-exceptions
-exit game
-bigger board size..
-depth
-plies
-saved - align outputs if bigger, show mode played
+Bigger board size long AI movetime
+Utilize depth better
+Plies
+Testing of AI
+Stats/simulations
+Confirm project requirements
+
+> 2 players
+Simulation repeat testing
+Exit game
+Save results- align outputs if too wide, show mode played in filename and txt
+Testing- P1 setting, setings, etc
+Align available moves for bigger boards
 """
 
 import time
@@ -62,7 +67,7 @@ class TicTacToe:
         self.display_start()
 
     def display_start(self):
-        print("\n\n❌⭕ tic tac toe\n")
+        print(f"\n\n{self.player_icons[0]} tic tac toe {self.player_icons[1]}\n")
         print("1. 2 player (normal)")
         print("2. Random")
         print("3. AI")
@@ -96,7 +101,7 @@ class TicTacToe:
         print()
         while True:
             try:
-                board_size = int(input("      Enter a board size: "))
+                board_size = int(input("      Enter board size: "))
                 if 0 < board_size <= 100:
                     self.board = [['⬜️' for _ in range(board_size)] for _ in range(board_size)]
                     self.available_moves = [i for i in range(1, (board_size ** 2) + 1)]
@@ -166,7 +171,7 @@ class TicTacToe:
 
 
             if settings["save_results"]:
-                with open(f'results/tic tac toe {datetime.now().strftime("%a %b %d %Y %I:%M:%S %p")}.txt', 'a') as file:
+                with open(f'saved_results/tic tac toe {datetime.now().strftime("%a %b %d %Y %I:%M:%S %p")}.txt', 'a') as file:
                     file.write(f"{num_games} game{'s' if num_games > 1 else ''} played\n")
                     file.write(f"{p1_icon} wins: {p1_wins} ({round(p1_wins / num_games * 100, 5)}%)\n")
                     file.write(f"{p2_icon} wins: {p2_wins} ({round(p2_wins / num_games * 100, 5)}%)\n")
@@ -739,5 +744,4 @@ class TicTacToe:
 
 
 
-game = TicTacToe()
-game.start()
+TicTacToe().start()
