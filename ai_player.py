@@ -10,20 +10,12 @@ class AIPlayer:
         start_time = time.time()
         if self.algorithm_type == "minimax":
             _, move = self.minimax(board, self.ai_icon)
-            end_time = time.time() 
-            duration = end_time - start_time 
-            if not abbreviated_output:
-                print(f"Time taken: {duration} sec")
-            return move
         elif self.algorithm_type == "alphabeta":
             _, move = self.minimax_alphabeta(board, self.ai_icon)
-            end_time = time.time() 
-            duration = end_time - start_time 
-            if not abbreviated_output:
-                print(f"Time taken: {duration}")
-            return move
         else:
             raise ValueError("Invalid algorithm type")
+        end_time = time.time()
+        return move, end_time - start_time
 
 
     def minimax(self, board, player_icon, depth=0):
