@@ -147,4 +147,4 @@ class TicTacToe:
                 exit()
 
 
-TicTacToe(5, 4).start()
+TicTacToe(7, 6).start()

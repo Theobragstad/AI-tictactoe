@@ -2,11 +2,9 @@
 Bigger board size long AI movetime
 Utilize depth better, Plies
 Confirm project requirements.
-submit, interview
 
-state which player is which symbol
-stats when playing yourself
-errors
+submit, interview
+bugs find
 """
 
 import time
@@ -38,12 +36,7 @@ class TicTacToe:
         self.random_players = [RandomPlayer() for _ in range(2)]
         self.ai_players = None
 
-        """
-        first element is player 1
-        second element is player 2
-
-        
-        """
+      
         self.player_type_to_icon = [['Player 1', self.player_icons[0]], ['Player 2', self.player_icons[1]]]
 
   
@@ -78,8 +71,8 @@ class TicTacToe:
         print("3. AI")
 
         print("\n4. Set icons")
-        print("5. Set board size")
-        print("6. Exit\n")
+        # print("5. Set board size")
+        print("5. Exit\n")
         choice = self.get_start_choice()
         self.handle_start_choice(choice)
 
@@ -96,10 +89,11 @@ class TicTacToe:
         elif choice == 4:
             self.set_icons()
             self.display_start() 
+        # elif choice == 5:
+        #     self.set_board_size()
+        #     self.display_start()            
         elif choice == 5:
-            self.set_board_size()
-            self.display_start()            
-        elif choice == 6:
+            print("Game exited.")
             return
 
     def set_board_size(self):
@@ -122,8 +116,7 @@ class TicTacToe:
 
 
     def play(self, mode, settings=None):
-        increment_player = self.current_player == 2
-        swap_icons = increment_player
+        player_was_swapped = self.current_player == 2
 
 
         if settings:
@@ -177,7 +170,7 @@ class TicTacToe:
                         elif checks[2]:
                             ties += 1
                         num_games += 1
-                        self.reset_variables(increment_player)
+                        self.reset_variables(increment_player=player_was_swapped)
                         break
 
                 
@@ -186,17 +179,20 @@ class TicTacToe:
                 time.sleep(0.05)
 
 
-            
+            if player_was_swapped:
+                p1_wins, p2_wins = p2_wins, p1_wins
+                p1_time, p2_time = p2_time, p1_time
+                p1_move_count, p2_move_count = p2_move_count, p1_move_count
+                sum_moves_p1_win, sum_moves_p2_win = sum_moves_p2_win, sum_moves_p1_win
 
-            # p1_icon, p2_icon = self.player_icons
+
             p1_icon = self.player_type_to_icon[0][1]
             p2_icon = self.player_type_to_icon[1][1]
 
             print("\n\nCalculating stats...")
             time.sleep(1)
 
-            # print(f"\n{mode}\n")
-            print(f"\n{self.player_type_to_icon[0][0]} ({p1_icon}) vs {self.player_type_to_icon[1][0]} ({p2_icon})\n")
+            print(f"\n{self.player_type_to_icon[0][0]} ({p1_icon}, P1) vs {self.player_type_to_icon[1][0]} ({p2_icon}, P2)\n")
             
 
             print(f"\n{num_games} game{'s' if num_games > 1 else ''} played")
@@ -217,7 +213,7 @@ class TicTacToe:
             if settings["save_results"]:
                 current_time = datetime.now().strftime("%a %b %d %Y %I:%M:%S %p")
                 with open(f'Tic Tac Toe - {mode} - {current_time}.txt', 'a') as file:
-                    file.write(f"{mode}\n\n")
+                    file.write(f"{self.player_type_to_icon[0][0]} ({p1_icon}, P1) vs {self.player_type_to_icon[1][0]} ({p2_icon}, P2)\n\n")
                     file.write(f"{num_games} game{'s' if num_games > 1 else ''} played\n")
                     file.write(f"\nAverage game duration (moves only) (sec): {round(total_time / num_games, 5)}\n\n")
                     file.write(f"{p1_icon} wins: {p1_wins} ({round(p1_wins / num_games * 100, 5)}%)\n")
@@ -239,12 +235,11 @@ class TicTacToe:
             
             
             if self.check_play_again():
-                self.reset_variables(swap_icons=swap_icons)
+                self.reset_variables(swap_icons=player_was_swapped)
                 self.display_start()
             else:
                 exit()
         else:
-            print(swap_icons)
             while True:
                 self.display_board()
                 self.display_available_moves()
@@ -253,7 +248,7 @@ class TicTacToe:
                         print(f"Move duration (sec): {move_duration}")
                 if True in self.check_game_over():
                     if self.check_play_again():
-                        self.reset_variables(swap_icons=swap_icons)
+                        self.reset_variables(swap_icons=player_was_swapped)
                         self.display_start()
                     else:
                         exit()
@@ -292,6 +287,8 @@ class TicTacToe:
             self.set_p1("Random vs You")
             self.play(mode="Random vs You")
         elif choice == 2:
+            self.player_type_to_icon[0][0] = "Random"
+            self.player_type_to_icon[1][0] = "Random"
             self.play(mode="Random vs Random", settings=self.get_game_settings())
 
 
@@ -306,6 +303,9 @@ class TicTacToe:
             self.set_p1("AI (Minimax) vs You")
             self.play(mode="AI (Minimax) vs You")
         elif choice == 2:
+            self.player_type_to_icon[0][0] = "AI (Minimax)"
+            self.player_type_to_icon[1][0] = "AI (Minimax)"
+
             self.play(mode="AI (Minimax) vs AI (Minimax)", settings=self.get_game_settings())
         elif choice == 3:
             self.set_p1("AI (Minimax) vs Random")
@@ -315,6 +315,8 @@ class TicTacToe:
             self.set_p1("AI (Alpha-beta) vs You")
             self.play(mode="AI (Alpha-beta) vs You")
         elif choice == 5:
+            self.player_type_to_icon[0][0] = "AI (Alpha-beta)"
+            self.player_type_to_icon[1][0] = "AI (Alpha-beta)"
             self.play(mode="AI (Alpha-beta) vs AI (Alpha-beta)", settings=self.get_game_settings())
         elif choice == 6:
             self.set_p1("AI (Alpha-beta) vs Random")
@@ -495,17 +497,18 @@ class TicTacToe:
 
             return False
         
-        p1_icon, p2_icon = self.player_icons
+        p1_icon = self.player_type_to_icon[0][1]
+        p2_icon = self.player_type_to_icon[1][1]
 
         if check_winner(p1_icon):
             if not abbreviated_output:
-                print(f"\n\n{p1_icon} won!")
+                print(f"\n\n{p1_icon} ({self.player_type_to_icon[0][0]}, P1) won!")
             self.display_board(abbreviated_output)
             return [True, False, False]
 
         elif check_winner(p2_icon):
             if not abbreviated_output:
-                print(f"\n\n{p2_icon} won!")
+                print(f"\n\n{p2_icon} ({self.player_type_to_icon[1][0]}, P2) won!")
             self.display_board(abbreviated_output)
             return [False, True, False]
 
@@ -568,7 +571,6 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("Random player is moving...")
                             time.sleep(1)
-                        # move, move_duration = self.random_player_1.get_move(self.available_moves)
                         move, move_duration = self.random_players[self.current_player - 1].get_move(self.available_moves)
                         if not abbreviated_output:
                             print(f"Random player's move: {move}")
@@ -741,7 +743,7 @@ class TicTacToe:
         while True:
             try:
                 choice = int(input("Choose an option: "))
-                if 0 <= choice <= 6:
+                if 0 <= choice <= 5:
                     return choice
                 
             except ValueError:
@@ -824,4 +826,4 @@ class TicTacToe:
 
 
 
-TicTacToe().start()
+TicTacToe(4).start()
