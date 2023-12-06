@@ -1,6 +1,6 @@
 """
 Confirm requirements.
-submit, interview
+submit
 bugs find
 """
 
@@ -33,7 +33,6 @@ class TicTacToe:
         self.random_players = [RandomPlayer() for _ in range(2)]
         self.ai_players = None
 
-      
         self.player_type_to_icon = [['Player 1', self.player_icons[0]], ['Player 2', self.player_icons[1]]]
 
     def start(self):
@@ -46,14 +45,16 @@ class TicTacToe:
         print("3. AI")
 
         print("\n4. Set icons")
-        # print("5. Set board size")
-        print("5. Exit\n")
+        print("5. Set board size")
+        print("6. Exit\n")
         choice = self.get_start_choice()
         self.handle_start_choice(choice)
 
 
     def handle_start_choice(self, choice):            
         if choice == 1:
+            self.player_type_to_icon[0][0] = "Player 1"
+            self.player_type_to_icon[1][0] = "Player 2"
             self.play(mode="2 player")
         elif choice == 2:
             random_choice = self.get_random_choice()
@@ -64,10 +65,10 @@ class TicTacToe:
         elif choice == 4:
             self.set_icons()
             self.display_start() 
-        # elif choice == 5:
-        #     self.set_board_size()
-        #     self.display_start()            
         elif choice == 5:
+            self.set_board_size()
+            self.display_start()            
+        elif choice == 6:
             print("Game exited.")
             return
 
@@ -147,11 +148,8 @@ class TicTacToe:
 
 
             if player_was_swapped:
-                p1_wins, p2_wins = p2_wins, p1_wins
                 p1_time, p2_time = p2_time, p1_time
                 p1_move_count, p2_move_count = p2_move_count, p1_move_count
-                sum_moves_p1_win, sum_moves_p2_win = sum_moves_p2_win, sum_moves_p1_win
-
 
             p1_icon = self.player_type_to_icon[0][1]
             p2_icon = self.player_type_to_icon[1][1]
@@ -303,7 +301,7 @@ class TicTacToe:
         while True:
             try:
                 num_games = int(input("      Number of games: "))
-                if 0 < num_games <= 10000:
+                if 0 < num_games <= 1000:
                     break
             except ValueError:
                 pass
@@ -314,7 +312,7 @@ class TicTacToe:
 
         while True:
             try:
-                abbreviated_output = input("      Abbreviated output? y/n: ")
+                abbreviated_output = input("      Only show endgames? y/n: ")
                 if abbreviated_output == "n":
                     abbreviated_output = False
                     break
@@ -410,8 +408,8 @@ class TicTacToe:
             p1 = "AI (Minimax)"
             p2 = "AI (Alpha-beta)"
         
-        self.player_type_to_icon[0][0] = p1
-        self.player_type_to_icon[1][0] = p2
+        self.player_type_to_icon[0] = [p1, self.player_icons[0]]
+        self.player_type_to_icon[1] = [p2, self.player_icons[1]]
       
         print()
         while True:
@@ -486,8 +484,6 @@ class TicTacToe:
             return [False, False, True]
 
         return [False, False, False]
-
-
 
     
     def display_board(self, abbreviated_output=False):
@@ -565,7 +561,7 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("AI (Minimax) player is moving...")
                             time.sleep(1)
-                        move, move_duration = self.ai_players[self.current_player - 1].get_move(self.board, abbreviated_output)
+                        move, move_duration = self.ai_players[self.current_player - 1].get_move(board=self.board)
                         if not abbreviated_output:
                             print(f"AI (Minimax) player's move: {move}")
                             time.sleep(1)
@@ -575,7 +571,7 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("AI (Minimax) player 1 is moving...")
                             time.sleep(1)
-                        move, move_duration = self.ai_players[self.current_player - 1].get_move(self.board, abbreviated_output)
+                        move, move_duration = self.ai_players[self.current_player - 1].get_move(board=self.board)
                         if not abbreviated_output:
                             print(f"AI (Minimax) player 1's move: {move}")
                             time.sleep(1)
@@ -583,7 +579,7 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("AI (Minimax) player 2 is moving...")
                             time.sleep(1)
-                        move, move_duration = self.ai_players[self.current_player - 1].get_move(self.board, abbreviated_output)
+                        move, move_duration = self.ai_players[self.current_player - 1].get_move(board=self.board)
                         if not abbreviated_output:
                             print(f"AI (Minimax) player 2's move: {move}")
                             time.sleep(1)
@@ -593,7 +589,7 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("AI (Minimax) player is moving...")
                             time.sleep(1)
-                        move, move_duration = self.ai_players[self.current_player - 1].get_move(self.board, abbreviated_output)
+                        move, move_duration = self.ai_players[self.current_player - 1].get_move(board=self.board)
                         if not abbreviated_output:
                             print(f"AI (Minimax) player's move: {move}")
                             time.sleep(1)
@@ -613,7 +609,7 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("AI (Alpha-beta) player is moving...")
                             time.sleep(1)
-                        move, move_duration = self.ai_players[self.current_player - 1].get_move(self.board, abbreviated_output)
+                        move, move_duration = self.ai_players[self.current_player - 1].get_move(board=self.board)
                         if not abbreviated_output:
                             print(f"AI (Alpha-beta) player's move: {move}")
                             time.sleep(1)
@@ -623,7 +619,7 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("AI (Alpha-beta) player 1 is moving...")
                             time.sleep(1)
-                        move, move_duration = self.ai_players[self.current_player - 1].get_move(self.board, abbreviated_output)
+                        move, move_duration = self.ai_players[self.current_player - 1].get_move(board=self.board)
                         if not abbreviated_output:
                             print(f"AI (Alpha-beta) player 1's move: {move}")
                             time.sleep(1)
@@ -631,7 +627,7 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("AI (Alpha-beta) player 2 is moving...")
                             time.sleep(1)
-                        move, move_duration = self.ai_players[self.current_player - 1].get_move(self.board, abbreviated_output)
+                        move, move_duration = self.ai_players[self.current_player - 1].get_move(board=self.board)
                         if not abbreviated_output:
                             print(f"AI (Alpha-beta) player 2's move: {move}")
                             time.sleep(1)
@@ -641,7 +637,7 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("AI (Alpha-beta) player is moving...")
                             time.sleep(1)
-                        move, move_duration = self.ai_players[self.current_player - 1].get_move(self.board, abbreviated_output)
+                        move, move_duration = self.ai_players[self.current_player - 1].get_move(board=self.board)
                         if not abbreviated_output:
                             print(f"AI (Alpha-beta) player's move: {move}")
                             time.sleep(1)
@@ -659,7 +655,7 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("AI (Minimax) player is moving...")
                             time.sleep(1)
-                        move, move_duration = self.ai_players[self.current_player - 1].get_move(self.board, abbreviated_output)
+                        move, move_duration = self.ai_players[self.current_player - 1].get_move(board=self.board)
                         if not abbreviated_output:
                             print(f"AI (Minimax) player's move: {move}")
                             time.sleep(1)
@@ -667,7 +663,7 @@ class TicTacToe:
                         if not abbreviated_output:
                             print("AI (Alpha-beta) player is moving...")
                             time.sleep(1)
-                        move, move_duration = self.ai_players[self.current_player - 1].get_move(self.board, abbreviated_output)
+                        move, move_duration = self.ai_players[self.current_player - 1].get_move(board=self.board)
                         if not abbreviated_output:
                             print(f"AI (Alpha-beta) player's move: {move}")
                             time.sleep(1)
@@ -675,10 +671,6 @@ class TicTacToe:
 
                 if move in self.available_moves:
                     self.available_moves.remove(move)
-                    
-                    
-
-
                     self.update_board(move)
 
                     self.current_player = 2 if self.current_player == 1 else 1
@@ -701,7 +693,6 @@ class TicTacToe:
                     return
 
                 num_counter += 1
-
 
     def get_start_choice(self):
         while True:
@@ -780,4 +771,4 @@ class TicTacToe:
             print(f"{icon:<2} {number}")
 
 
-TicTacToe(4).start()
+TicTacToe().start()
