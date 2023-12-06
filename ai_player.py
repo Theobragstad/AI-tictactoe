@@ -100,10 +100,6 @@
 #         self.opp_icon = opp_icon
 
 
-
-
-
-
 import time
 
 class AIPlayer:
@@ -112,7 +108,7 @@ class AIPlayer:
         self.opp_icon = opp_icon
         self.algorithm_type = algorithm_type
 
-    def get_move(self, board, abbreviated_output, max_depth=3):  # Add max_depth parameter with a default value
+    def get_move(self, board, abbreviated_output, max_depth=3): 
         start_time = time.time()
         if self.algorithm_type == "minimax":
             _, move = self.minimax(board, self.ai_icon, max_depth=max_depth)
@@ -124,7 +120,7 @@ class AIPlayer:
         return move, end_time - start_time
 
 
-    def minimax(self, board, player_icon, depth=0, max_depth=float('inf')):  # Add max_depth parameter
+    def minimax(self, board, player_icon, depth=0, max_depth=float('inf')):  
         if self.check_winner(board, self.opp_icon):
             return -1, None  
         elif self.check_winner(board, self.ai_icon):
@@ -136,10 +132,10 @@ class AIPlayer:
 
         for move in self.get_available_moves(board):
             new_board = self.make_move(board, move, player_icon)
-            if depth < max_depth:  # Add this line to limit the depth
+            if depth < max_depth:  
                 score, _ = self.minimax(new_board, self.ai_icon if player_icon == self.opp_icon else self.opp_icon, depth + 1, max_depth)
             else:
-                score, _ = 0, None  # This line assumes a draw when the depth limit is reached
+                score, _ = 0, None  
             scores.append(score)
 
         if player_icon == self.ai_icon:
@@ -162,10 +158,10 @@ class AIPlayer:
 
         for move in self.get_available_moves(board):
             new_board = self.make_move(board, move, player_icon)
-            if depth < max_depth:  # Add this line to limit the depth
+            if depth < max_depth: 
                 score, _ = self.minimax_alphabeta(new_board, self.ai_icon if player_icon == self.opp_icon else self.opp_icon, depth + 1, alpha, beta, max_depth)
             else:
-                score, _ = 0, None  # This line assumes a draw when the depth limit is reached
+                score, _ = 0, None  
             scores.append(score)
 
             if player_icon == self.ai_icon:

@@ -1,8 +1,5 @@
 """
-Bigger board size long AI movetime
-Utilize depth better, Plies
-Confirm project requirements.
-
+Confirm requirements.
 submit, interview
 bugs find
 """
@@ -38,28 +35,6 @@ class TicTacToe:
 
       
         self.player_type_to_icon = [['Player 1', self.player_icons[0]], ['Player 2', self.player_icons[1]]]
-
-  
-
-
-
- 
-       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     def start(self):
         self.display_start()
@@ -113,11 +88,8 @@ class TicTacToe:
                 print("\n\nGame exited.")
                 exit()
             
-
-
     def play(self, mode, settings=None):
         player_was_swapped = self.current_player == 2
-
 
         if settings:
             num_games = p1_wins = p2_wins = ties = moves = sum_moves_p1_win = sum_moves_p2_win= 0
@@ -125,11 +97,6 @@ class TicTacToe:
             result_boards = []
             total_time = 0
             p1_time = p1_move_count = p2_time = p2_move_count = 0
-
-
-            
-
-
 
             while num_games < settings["num_games"]:
                 game_duration = 0
@@ -529,10 +496,7 @@ class TicTacToe:
             print("".join(map(str, row)))
         if not abbreviated_output:
             print()
-        
-        
-    
-
+         
     def display_available_moves(self):
         n = len(self.board)
 
@@ -814,16 +778,6 @@ class TicTacToe:
         for icon, number in zip(self.available_icons, range(1, len(self.available_icons) + 1)):
             time.sleep(0.05)
             print(f"{icon:<2} {number}")
-
-
-
-
-
-
-    
-
-     
-
 
 
 TicTacToe(4).start()

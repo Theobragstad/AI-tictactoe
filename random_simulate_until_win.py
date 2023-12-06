@@ -1,5 +1,9 @@
 """
 Just for fun
+
+Runs games until someone wins
+Each board shown is a tie
+The last board shown is a win
 """
 import random
 from random_player import RandomPlayer
@@ -50,11 +54,11 @@ class TicTacToe:
     def play(self):
         while True:
             while True:
-                self.display_board()
                 self.get_move()
                 if self.check_someone_won():
                     return
                 elif self.check_tie():
+                    self.display_board()
                     break
             
             self.reset_variables()
@@ -147,4 +151,4 @@ class TicTacToe:
                 exit()
 
 
-TicTacToe(7, 6).start()
+TicTacToe(25, 10).start()
