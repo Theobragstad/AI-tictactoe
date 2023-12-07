@@ -216,7 +216,7 @@ class TicTacToe:
 
             if settings["save_results"]:
                 current_time = datetime.now().strftime("%a %b %d %Y %I:%M:%S %p")
-                with open(f'Tic-tac-toe - {mode} - {current_time}.txt', 'a') as file:
+                with open(f'Tic-tac-toe - {self.player_type_to_icon[0][0]} vs {self.player_type_to_icon[1][0]} - {current_time}.txt', 'a') as file:
                     file.write(f"{self.player_type_to_icon[0][0]} ({p1_icon}, P1) vs {self.player_type_to_icon[1][0]} ({p2_icon}, P2)\n")
                     file.write(f"{len(self.board)}x{len(self.board)}{', Max Depth: ' + str(self.max_depth) if 'AI' in self.player_type_to_icon[0][0] or 'AI' in self.player_type_to_icon[1][0] else ''}\n")
 
@@ -236,7 +236,7 @@ class TicTacToe:
                         for row in board:
                             file.write(" ".join(map(str, row)) + "\n")
                         file.write("\n")
-                print(f"\nResults saved to Tic-tac-toe - {mode} - {current_time}.txt")
+                print(f"\nResults saved to Tic-tac-toe - {self.player_type_to_icon[0][0]} vs {self.player_type_to_icon[1][0]} - {current_time}.txt")
                     
             
             
