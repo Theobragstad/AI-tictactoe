@@ -1,24 +1,25 @@
 import time
 
 class AIPlayer:
-    def __init__(self, ai_icon, opp_icon, algorithm_type):
+    def __init__(self, ai_icon, opp_icon, algorithm_type, max_depth):
         self.ai_icon = ai_icon
         self.opp_icon = opp_icon
         self.algorithm_type = algorithm_type
+        self.max_depth = max_depth
 
     """
-    For board sizes > 3, lower the max depth to prevent long move times. 
-    The AI player will still outperform the random player on average.
+    For board sizes > 3, set a lower max depth to prevent long move times. The default is 9, which is good for 3x3 boards. 
+    On larger boards, the AI player will still outperform the random player on average even if the max depth is not optimal.
     """
     
-    def get_move(self, board, max_depth=9): 
+    def get_move(self, board): 
         start_time = time.time()
         if self.algorithm_type == "minimax":
-            _, move = self.minimax(board, self.ai_icon, max_depth=max_depth)
+            _, move = self.minimax(board, self.ai_icon, max_depth=self.max_depth)
         elif self.algorithm_type == "alphabeta":
-            _, move = self.minimax_alphabeta(board, self.ai_icon, max_depth=max_depth)
+            _, move = self.minimax_alphabeta(board, self.ai_icon, max_depth=self.max_depth)
         else:
-            raise ValueError("Invalid algorithm type")
+            raise ValueError("Invalid algorithm type.")
         end_time = time.time()
         return move, end_time - start_time
 

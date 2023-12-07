@@ -1,9 +1,3 @@
-"""
-Confirm requirements.
-submit
-bugs find
-"""
-
 import time
 import random
 from datetime import datetime
@@ -35,6 +29,13 @@ class TicTacToe:
 
         self.player_type_to_icon = [['Player 1', self.player_icons[0]], ['Player 2', self.player_icons[1]]]
 
+        """
+        Realistic (and optimal) for a standard 3x3 board, but too large to be reasonable on larger boards. 
+        Adjust as needed via the menu. See the AIPlayer class for more info on depth.
+        """
+        self.max_depth = 9 
+
+
     def start(self):
         self.display_start()
 
@@ -46,7 +47,8 @@ class TicTacToe:
 
         print("\n4. Set icons")
         print("5. Set board size")
-        print("6. Exit\n")
+        print("6. Set AI max depth")
+        print("7. Exit\n")
         choice = self.get_start_choice()
         self.handle_start_choice(choice)
 
@@ -67,10 +69,33 @@ class TicTacToe:
             self.display_start() 
         elif choice == 5:
             self.set_board_size()
-            self.display_start()            
+            self.display_start()          
         elif choice == 6:
+            self.set_ai_max_depth()
+            self.display_start()            
+        elif choice == 7:
             print("Game exited.")
             return
+
+
+    def set_ai_max_depth(self):
+        print()
+        while True:
+            try:
+                max_depth = int(input(f"      Enter a max depth for the AI (> 0) (Current: {self.max_depth}): "))
+                if 0 < max_depth <= 100:
+                    self.max_depth = max_depth
+                    print(f"      Max depth for AI set to {max_depth}. Returning to start...")
+                    time.sleep(1)
+                    break
+            except ValueError:
+                pass
+            except KeyboardInterrupt:
+                print("\n\nGame exited.")
+                exit()
+
+
+
 
     def set_board_size(self):
         print()
@@ -80,7 +105,17 @@ class TicTacToe:
                 if 0 < board_size <= 25:
                     self.board = [['⬜️' for _ in range(board_size)] for _ in range(board_size)]
                     self.available_moves = [i for i in range(1, (board_size ** 2) + 1)]
-                    print(f"      Board size set to {board_size}. Returning to start...")
+                    print(f"      Board size set to {board_size}.")
+                    if board_size != 3:
+                        time.sleep(0.5)
+                        print("\n      Note that the default AI max depth is 9, which is optimal for standard 3x3 boards.")
+                        time.sleep(2)
+                        if board_size > 3:
+                            print("      For boards larger than 3x3, it's best to set the max depth to a lower number (3 works well) to avoid long move times.\n")
+                        else:
+                            print("      For boards smaller than 3x3, it's best to set the max depth to the number of total squares for optimal but still efficient moves.\n")
+                        time.sleep(2)
+                    print("Returning to start...")
                     time.sleep(1)
                     break
             except ValueError:
@@ -101,8 +136,8 @@ class TicTacToe:
 
             while num_games < settings["num_games"]:
                 game_duration = 0
-                p1_move_count = 0
-                p2_move_count = 0
+                p1_move_count_game = 0
+                p2_move_count_game = 0
                 while True:
                     if not settings["abbreviated_output"]:
                         self.display_board()
@@ -119,9 +154,11 @@ class TicTacToe:
                     if self.current_player == 2:
                         p1_time += move_duration
                         p1_move_count += 1
+                        p1_move_count_game += 1
                     else:
                         p2_time += move_duration
                         p2_move_count += 1
+                        p2_move_count_game += 1
                     
                     
                     checks = self.check_game_over(settings["abbreviated_output"])
@@ -130,10 +167,10 @@ class TicTacToe:
 
 
                         if checks[0]:
-                            sum_moves_p1_win += p1_move_count
+                            sum_moves_p1_win += p1_move_count_game
                             p1_wins += 1
                         elif checks[1]:
-                            sum_moves_p2_win += p2_move_count
+                            sum_moves_p2_win += p2_move_count_game
                             p2_wins += 1
                         elif checks[2]:
                             ties += 1
@@ -150,6 +187,7 @@ class TicTacToe:
             if player_was_swapped:
                 p1_time, p2_time = p2_time, p1_time
                 p1_move_count, p2_move_count = p2_move_count, p1_move_count
+                p1_move_count_game, p2_move_count_game = p2_move_count_game, p1_move_count_game
 
             p1_icon = self.player_type_to_icon[0][1]
             p2_icon = self.player_type_to_icon[1][1]
@@ -157,10 +195,11 @@ class TicTacToe:
             print("\n\nCalculating stats...")
             time.sleep(1)
 
-            print(f"\n{self.player_type_to_icon[0][0]} ({p1_icon}, P1) vs {self.player_type_to_icon[1][0]} ({p2_icon}, P2)\n")
-            
+            print(f"\n{self.player_type_to_icon[0][0]} ({p1_icon}, P1) vs {self.player_type_to_icon[1][0]} ({p2_icon}, P2)")
+            print(f"{len(self.board)}x{len(self.board)}{', Max Depth: ' + str(self.max_depth) if 'AI' in self.player_type_to_icon[0][0] or 'AI' in self.player_type_to_icon[1][0] else ''}")
 
-            print(f"\n{num_games} game{'s' if num_games > 1 else ''} played")
+
+            print(f"{num_games} game{'s' if num_games > 1 else ''} played")
             print(f"\nAverage game duration (moves only) (sec): {round(total_time / num_games, 5)}\n\n")
             print(f"{p1_icon} wins: {p1_wins} ({round(p1_wins / num_games * 100, 5)}%)")
             print(f"{p2_icon} wins: {p2_wins} ({round(p2_wins / num_games * 100, 5)}%)")
@@ -178,7 +217,9 @@ class TicTacToe:
             if settings["save_results"]:
                 current_time = datetime.now().strftime("%a %b %d %Y %I:%M:%S %p")
                 with open(f'Tic-tac-toe - {mode} - {current_time}.txt', 'a') as file:
-                    file.write(f"{self.player_type_to_icon[0][0]} ({p1_icon}, P1) vs {self.player_type_to_icon[1][0]} ({p2_icon}, P2)\n\n")
+                    file.write(f"{self.player_type_to_icon[0][0]} ({p1_icon}, P1) vs {self.player_type_to_icon[1][0]} ({p2_icon}, P2)\n")
+                    file.write(f"{len(self.board)}x{len(self.board)}{', Max Depth: ' + str(self.max_depth) if 'AI' in self.player_type_to_icon[0][0] or 'AI' in self.player_type_to_icon[1][0] else ''}\n")
+
                     file.write(f"{num_games} game{'s' if num_games > 1 else ''} played\n")
                     file.write(f"\nAverage game duration (moves only) (sec): {round(total_time / num_games, 5)}\n\n")
                     file.write(f"{p1_icon} wins: {p1_wins} ({round(p1_wins / num_games * 100, 5)}%)\n")
@@ -259,11 +300,11 @@ class TicTacToe:
 
     def handle_ai_choice(self, choice):
         if choice in [1, 2, 3]:
-            self.ai_players = [AIPlayer(self.player_icons[0], self.player_icons[1], "minimax"), AIPlayer(self.player_icons[1], self.player_icons[0], "minimax")]
+            self.ai_players = [AIPlayer(self.player_icons[0], self.player_icons[1], "minimax", self.max_depth), AIPlayer(self.player_icons[1], self.player_icons[0], "minimax", self.max_depth)]
         elif choice in [4, 5, 6]:
-            self.ai_players = [AIPlayer(self.player_icons[0], self.player_icons[1], "alphabeta"), AIPlayer(self.player_icons[1], self.player_icons[0], "alphabeta")]
+            self.ai_players = [AIPlayer(self.player_icons[0], self.player_icons[1], "alphabeta", self.max_depth), AIPlayer(self.player_icons[1], self.player_icons[0], "alphabeta", self.max_depth)]
         elif choice == 7:
-            self.ai_players = [AIPlayer(self.player_icons[0], self.player_icons[1], "minimax"), AIPlayer(self.player_icons[1], self.player_icons[0], "alphabeta")]
+            self.ai_players = [AIPlayer(self.player_icons[0], self.player_icons[1], "minimax", self.max_depth), AIPlayer(self.player_icons[1], self.player_icons[0], "alphabeta", self.max_depth)]
         if choice == 1:
             self.set_p1("AI (Minimax) vs You")
             self.play(mode="AI (Minimax) vs You")
@@ -698,7 +739,7 @@ class TicTacToe:
         while True:
             try:
                 choice = int(input("Choose an option: "))
-                if 0 <= choice <= 5:
+                if 0 <= choice <= 7:
                     return choice
                 
             except ValueError:
