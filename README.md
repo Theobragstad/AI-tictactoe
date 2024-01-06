@@ -1,9 +1,9 @@
 # ❌ Tic-tac-toe ⭕
 
-### Game modes
+### Game modes:
 Normal, random, Minimax AI, Alpha-beta AI.
 
-### Other features 
+### Other features: 
 Custom icons, custom board size, multi-game simulations, AI depth settings.
 
 #### How to run:  
